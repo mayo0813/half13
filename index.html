@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>13½층</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Do+Hyeon&family=DotGothic16&display=swap" rel="stylesheet">
+<style>
+/* VOICE: 퇴근길의 피곤함 + 기괴함 + 어이없는 유머. 짧게 끊기는 문장.
+   IDEA: 고장 난 엘리베이터 그 자체. 문이 닫혔다 열리면 다음 장면.
+   PICTURE: 화면 위쪽 절반을 차지하는 엘리베이터 문과 빨간 LED 층수 표시등.
+   COLOUR and TYPE: 산화된 적갈색 벽, 형광등빛 아이보리 글자, LED 빨강 하나. 나눔명조 + 도현 + 도트 LED.
+   LAYOUT: 한 열. 표시등 → 문(그림) → 지문 → 선택지. 폰 우선. */
+:root{color-scheme:dark;--bg:#1c0d0b;--wall:#2b1512;--steel:#6d625a;--steel2:#3e3631;--ink:#f1ead8;--dim:#a8988a;--led:#ff3b2f;--glow:#fff6d6}
+:root[data-theme=light],:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink)}
+body{font:17px/1.8 "Nanum Myeongjo",serif;overflow-x:clip;
+ background:radial-gradient(120% 60% at 50% 0%,#3a1a15 0%,var(--bg) 60%) fixed}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:50;
+ background:repeating-linear-gradient(0deg,#0000 0 2px,#0000000f 2px 3px),radial-gradient(ellipse at center,#0000 55%,#000a 100%)}
+#app{max-width:560px;margin:0 auto;padding:14px 16px 40px;display:flex;flex-direction:column;min-height:100vh}
+.top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.led{background:#0d0303;border:2px solid #3b1d18;border-radius:6px;padding:4px 14px;min-width:108px;text-align:center;
+ font:30px/1.2 "DotGothic16","Do Hyeon",monospace;color:var(--led);text-shadow:0 0 6px #ff3b2fcc,0 0 18px #ff3b2f66;white-space:nowrap}
+.led.flick{animation:flick .25s steps(2) 2}
+@keyframes flick{50%{opacity:.15}}
+.san{flex:1}
+.san span{font:13px "Do Hyeon",sans-serif;color:var(--dim);display:flex;justify-content:space-between}
+.bar{height:8px;background:#0d0303;border-radius:4px;overflow:hidden;border:1px solid #3b1d18}
+.bar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#8d1a12,var(--led));transition:width .6s}
+.mute{width:44px;height:44px;border-radius:50%;border:1px solid #4a2a24;background:#0d0303;color:var(--dim);font:14px "Do Hyeon";cursor:pointer}
+/* elevator */
+.frame{position:relative;aspect-ratio:4/3.1;border-radius:6px;padding:12px;
+ background:linear-gradient(180deg,#4b423c,#2a2420);box-shadow:inset 0 2px 0 #8a7d72,0 18px 40px #000a}
+.shaft{position:relative;height:100%;overflow:hidden;border-radius:2px;background:#050202}
+.scene{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:center}
+.scene svg{width:100%;height:100%}
+.door{position:absolute;top:0;bottom:0;width:50%;transition:transform .9s cubic-bezier(.7,0,.3,1);
+ background:linear-gradient(90deg,var(--steel2),var(--steel) 40%,#8b7f75 52%,var(--steel) 64%,var(--steel2));
+ box-shadow:inset 0 0 0 1px #0006}
+.door::after{content:"";position:absolute;inset:18% 22%;border:1px solid #0003;border-radius:2px}
+.dl{left:0;border-right:1px solid #000}.dr{right:0;border-left:1px solid #000}
+.open .dl{transform:translateX(-96%)}.open .dr{transform:translateX(96%)}
+.half .dl{transform:translateX(-48%)}.half .dr{transform:translateX(48%)}
+.shake{animation:shake .45s}
+@keyframes shake{20%{transform:translate(-6px,3px)}40%{transform:translate(5px,-4px)}60%{transform:translate(-4px,2px)}80%{transform:translate(3px,1px)}}
+/* text */
+#title{font:24px/1.2 "Do Hyeon",sans-serif;color:var(--led);margin:22px 0 0;display:none;text-wrap:balance}
+#text{white-space:pre-wrap;margin-top:20px;min-height:9em;cursor:pointer}
+#text.wob{animation:wob 3s infinite}
+@keyframes wob{50%{letter-spacing:.4px;filter:blur(.3px)}}
+#choices{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+.c{min-height:52px;padding:12px 16px;border-radius:4px;border:1px solid #5a3a32;background:#2b1512;color:var(--ink);
+ font:17px/1.4 "Nanum Myeongjo",serif;font-weight:700;text-align:left;cursor:pointer;opacity:0;animation:in .35s forwards}
+.c:hover,.c:focus-visible{border-color:var(--led);outline:none;background:#3a1a15}
+.c::before{content:"▸ ";color:var(--led)}
+.c.big{text-align:center;font:24px "Do Hyeon";padding:18px}
+.c.big::before{content:""}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1}}
+.meter{height:10px;background:#0d0303;border:1px solid #4a2a24;border-radius:5px;overflow:hidden}
+.meter i{display:block;height:100%;width:0;background:var(--led)}
+.meter.t i{background:var(--glow);width:100%}
+.hint{font:15px "Do Hyeon";color:var(--dim)}
+/* dark overlay */
+#dark{position:fixed;inset:0;background:#000;z-index:40;display:none;flex-direction:column;align-items:center;justify-content:center;gap:28px;padding:24px}
+#dark.on{display:flex}
+#face{width:min(70vw,300px);opacity:0;transition:opacity .12s,transform .9s}
+#face.show{opacity:1}#face.stare{transform:scale(1.6)}
+.endlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-top:6px}
+.endlist div{font:15px "Do Hyeon";padding:8px 10px;border:1px dashed #5a3a32;border-radius:4px;color:var(--dim)}
+.endlist div.got{border-style:solid;color:var(--ink);border-color:var(--led)}
+.cover{text-align:center;padding-top:10px}
+.cover h1{font:clamp(52px,16vw,88px)/1 "Do Hyeon",sans-serif;margin:18px 0 6px;color:var(--ink);text-shadow:0 0 30px #ff3b2f55}
+.cover p{color:var(--dim);margin:0 0 6px}
+small{color:var(--dim);font-size:13px}
+@media (prefers-reduced-motion:reduce){.door{transition:none}.shake,#text.wob,.led.flick{animation:none}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="top">
+    <div class="led" id="floor">12</div>
+    <div class="san"><span>정신력 <b id="sanN">100</b></span><div class="bar"><i id="sanBar"></i></div></div>
+    <button class="mute" id="mute" aria-label="소리 켜고 끄기">소리</button>
+  </div>
+  <div class="frame" id="frame">
+    <div class="shaft" id="shaft">
+      <div class="scene" id="scene"></div>
+      <div class="door dl"></div><div class="door dr"></div>
+    </div>
+  </div>
+  <div id="title"></div>
+  <div id="text"></div>
+  <div id="choices"></div>
+</div>
+<div id="dark"></div>
+
+<script>
+{
+const $=id=>document.getElementById(id);
+const KEY='half13_endings';
+let S;
+function reset(){S={san:100,bungeo:true,loop:0}}
+reset();
+
+/* ---------- 그림 ---------- */
+const ART={
+ hall:`<svg viewBox="0 0 400 310"><defs><linearGradient id="hg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b1a14"/><stop offset="1" stop-color="#0a0504"/></linearGradient></defs>
+  <rect width="400" height="310" fill="url(#hg)"/><polygon points="0,310 160,170 240,170 400,310" fill="#160b08"/>
+  <rect x="160" y="110" width="80" height="60" fill="#050202"/><rect x="190" y="40" width="20" height="6" fill="#fff6d6" opacity=".5"/>
+  <polygon points="160,170 160,110 0,30 0,310" fill="#22120e"/><polygon points="240,170 240,110 400,30 400,310" fill="#1b0e0b"/></svg>`,
+ inside:`<svg viewBox="0 0 400 310"><rect width="400" height="310" fill="#3a2f28"/><rect x="40" y="20" width="320" height="270" fill="#4d4038"/>
+  <rect x="150" y="30" width="100" height="6" fill="#fff6d6"/><rect x="60" y="50" width="280" height="220" fill="#5e5047" opacity=".6"/>
+  <g transform="translate(200 300)"><ellipse cx="0" cy="-6" rx="58" ry="8" fill="#0006"/>
+  <path d="M-42 0 L-38 -120 Q0 -140 38 -120 L42 0Z" fill="#1d1a20"/><path d="M-12 -122 L0 -100 L12 -122Z" fill="#eee"/>
+  <circle cx="0" cy="-160" r="34" fill="#d9c3ad"/><path d="M-34 -168 Q0 -210 34 -168 Q20 -186 0 -186 Q-20 -186 -34 -168Z" fill="#1a1210"/>
+  <ellipse cx="-12" cy="-160" rx="5" ry="2" fill="#1a1210"/><ellipse cx="12" cy="-160" rx="5" ry="2" fill="#1a1210"/>
+  <path d="M-16 -150 Q-12 -146 -8 -150 M8 -150 Q12 -146 16 -150" stroke="#8a5a50" fill="none"/>
+  <path d="M-10 -140 L10 -140" stroke="#5a2a20" stroke-width="2"/><rect x="34" y="-60" width="22" height="26" rx="3" fill="#e8d7a8"/></g></svg>`,
+ fish:`<svg viewBox="0 0 400 310"><rect width="400" height="310" fill="#1c100c"/><rect x="0" y="0" width="400" height="140" fill="#0c0605"/>
+  <g transform="translate(220 310)"><ellipse cx="0" cy="-4" rx="70" ry="9" fill="#000a"/>
+  <path d="M-50 0 L-44 -130 Q0 -146 44 -130 L50 0Z" fill="#202634"/><path d="M-14 -132 L0 -96 L14 -132Z" fill="#ddd"/><path d="M-4 -128 L4 -128 L6 -100 L0 -92 L-6 -100Z" fill="#a3201a"/>
+  <g transform="translate(0 -190) rotate(-8)"><path d="M-60 0 Q-10 -60 50 -10 Q70 0 50 10 Q-10 60 -60 0Z" fill="#c48a3a"/>
+  <path d="M-60 0 Q-10 -60 50 -10 Q20 -20 -60 0Z" fill="#e3ae5c"/><path d="M50 -10 L90 -40 L80 0 L90 40 L50 10Z" fill="#a8702c"/>
+  <circle cx="-30" cy="-8" r="11" fill="#f5f0e0"/><circle cx="-31" cy="-8" r="6" fill="#111"/><circle cx="-33" cy="-10" r="2" fill="#fff"/>
+  <path d="M-58 4 Q-50 10 -44 4" stroke="#5a3010" stroke-width="3" fill="none"/><path d="M-6 -16 Q2 0 -6 16" stroke="#8a5a20" stroke-width="3" fill="none"/></g></g></svg>`,
+ doors3:`<svg viewBox="0 0 400 310"><rect width="400" height="310" fill="#1c100c"/><rect y="250" width="400" height="60" fill="#120806"/>
+  ${[60,170,280].map((x,i)=>`<rect x="${x}" y="90" width="70" height="160" fill="#3a2118"/><rect x="${x+6}" y="96" width="58" height="154" fill="#4a2c20"/><circle cx="${x+54}" cy="175" r="4" fill="#c9a86a"/><rect x="${x+10}" y="70" width="50" height="14" fill="#e8dcc0"/>`).join('')}
+  <rect x="290" y="96" width="50" height="154" fill="#fff6d6" opacity=".08"/></svg>`,
+ erasers:`<svg viewBox="0 0 400 310"><rect width="400" height="310" fill="#1c100c"/>
+  ${Array.from({length:42},(_,i)=>{const x=20+(i%7)*54,y=70+Math.floor(i/7)*38;return `<g transform="translate(${x} ${y}) rotate(${(i*37)%20-10})"><rect width="40" height="22" rx="3" fill="#efe6d4"/><rect x="26" width="14" height="22" fill="#3a6db0"/><circle cx="10" cy="9" r="2" fill="#111"/><circle cx="18" cy="9" r="2" fill="#111"/></g>`}).join('')}</svg>`,
+ phones:`<svg viewBox="0 0 400 310"><rect width="400" height="310" fill="#1c100c"/>
+  ${Array.from({length:30},(_,i)=>{const x=24+(i%6)*62,y=60+Math.floor(i/6)*48;return `<g transform="translate(${x} ${y})"><rect width="44" height="26" rx="6" fill="${i%4?'#2a2a2a':'#8d1a12'}"/><rect x="-4" y="-8" width="52" height="10" rx="5" fill="#111"/><circle cx="22" cy="14" r="6" fill="#555"/><path d="M-6 -14 l-6 -6 M50 -14 l6 -6" stroke="#fff6d6" stroke-width="2"/></g>`}).join('')}</svg>`,
+ black:`<svg viewBox="0 0 400 310"><rect width="400" height="310" fill="#000"/></svg>`
+};
+const FACE=`<svg viewBox="0 0 200 240"><ellipse cx="100" cy="120" rx="80" ry="105" fill="#e9e1d2"/><ellipse cx="66" cy="105" rx="22" ry="28" fill="#000"/><ellipse cx="134" cy="105" rx="22" ry="28" fill="#000"/>
+<circle cx="72" cy="98" r="6" fill="#fff"/><circle cx="140" cy="98" r="6" fill="#fff"/><ellipse cx="62" cy="150" rx="14" ry="7" fill="#e88" opacity=".6"/><ellipse cx="138" cy="150" rx="14" ry="7" fill="#e88" opacity=".6"/>
+<path d="M80 172 Q100 186 120 172" stroke="#5a2a20" stroke-width="4" fill="none"/></svg>`;
+
+/* ---------- 장면 ---------- */
+const sc={
+ start:{floor:'12',art:'inside',text:()=>S.loop?
+ `밤 11시 47분.\n…이 장면, 본 것 같다.\n\n버튼은 1층부터 12층까지. 그리고 맨 아래, 처음 보는 버튼 하나.\n\n[ 13½ ]\n\n누군가 그 버튼 옆에 손톱으로 "누르지마"라고 긁어놨다. 아까는 없었다.`:
+ `밤 11시 47분. 야근을 끝내고 엘리베이터에 탔다.\n\n버튼은 1층부터 12층까지. 그리고 맨 아래, 처음 보는 버튼 하나.\n\n[ 13½ ]\n\n주머니 속 편의점 붕어빵이 아직 따뜻하다.`,
+ choices:()=>[{t:'1층을 누른다',go:'f1'},{t:'13½층을 누른다',go:'half'},{t:'아무것도 누르지 않는다',go:'wait',san:-10},...(S.loop?[{t:'내려서 비상계단으로 간다',go:'noStairs'}]:[])]},
+ noStairs:{floor:'12',art:'hall',text:'비상계단 문을 열었다.\n\n문 뒤는 벽이다. 시멘트로 꼼꼼하게 막혀 있다.\n벽에 노란 포스트잇 한 장.\n\n"탈 거면 끝까지 타. -엘리베이터"',choices:[{t:'…다시 엘리베이터에 탄다',go:'voice',san:-5}]},
+ wait:{floor:'음…',art:'inside',text:'아무 버튼도 누르지 않았다.\n\n엘리베이터가 스스로 움직이기 시작한다.\n위로. 아래로. 옆으로. 조금 비스듬히.\n\n층수 표시등에 숫자 대신 "음…"이라고 뜬다.',choices:[{t:'계속 기다린다',go:'voice'}]},
+ voice:{floor:'??',art:'inside',sfx:'ding',text:'띵-\n\n「안녕하세요. 이 엘리베이터는 당신을 좋아합니다.」\n\n안내 음성이다. 평소와 같은 목소리인데, 숨소리가 섞여 있다.\n\n「오늘 하루, 어땠어요?」',choices:[{t:'"…피곤했어."',go:'voiceKind'},{t:'"닥쳐."',go:'voiceAngry',san:-5}]},
+ voiceKind:{floor:'??',art:'inside',text:'「그렇군요. 저도요.」\n\n「저는 39년째 오르락내리락하고 있어요. 한 번도 내려본 적이 없어요. 사람들은 제 안에서 거울 보고, 통화하고, 가끔… 방귀를 뀌죠.」\n\n「…잠깐만 저 대신 해줄래요? 딱 5분만요.」',choices:[{t:'"그래, 5분만."',go:'E_elevator'},{t:'"미안, 집에 가야 돼."',go:'f1'}]},
+ voiceAngry:{floor:'??',art:'black',sfx:'thud',text:'「……」\n\n조명이 꺼진다.\n\n어둠 속에서 누군가 아주 작게 속삭인다.\n「천장에서 뭐가 내려오면 눈 감으세요. 걔 낯가려요.」',choices:[{t:'준비됐다',go:'eye'}]},
+ eye:{game:'eye'},
+ eyeOk:{floor:'??',art:'inside',text:'눈을 꽉 감았다.\n\n…얼굴 하나가 아주 가까이 왔다가, 서운한 듯 멀어지는 기척.\n\n조명이 켜졌다. 천장에 매직으로 "다음엔 꼭"이라고 적혀 있다.\n\n표시등이 바뀐다. 13½.',choices:[{t:'문이 열린다',go:'half'}]},
+ eyeFail:{floor:'??',art:'inside',sfx:'thud',text:'눈이 마주쳤다.\n\n천장 구석의 얼굴이 수줍게 웃었다. 볼이 빨개졌다.\n너무 수줍어해서 오히려 더 무섭다.\n\n얼굴은 "연락할게요"라고 말하고 사라졌다.\n어떻게 연락한다는 건지 모르겠다.',choices:[{t:'문이 열린다',go:'half'}]},
+ f1:{floor:'1',art:'inside',sfx:'ding',text:'띵- 1층입니다.\n\n문이 열렸다. 로비가 아니다.\n\n문 너머에 똑같은 엘리베이터가 있고, 그 안에 내가 서 있다.\n같은 셔츠. 같은 다크서클. 같은 붕어빵 봉지.\n\n저쪽의 내가 정중하게 고개를 숙인다.\n\n"교대 시간입니다."',choices:[{t:'교대한다',go:'E_swap'},{t:'닫힘 버튼을 미친 듯이 누른다',go:'mash'}]},
+ mash:{game:'mash'},
+ mashOk:{floor:'1',art:'inside',door:'closed',text:'문이 아슬아슬하게 닫혔다.\n\n닫히는 틈으로 저쪽의 내가 손을 흔드는 게 보였다. 조금 서운한 표정이었다.\n\n엘리베이터가 다시 올라간다. 아니, 반쯤 올라간다.',choices:[{t:'…',go:'half'}]},
+ half:{floor:'13½',art:'fish',door:'half',sfx:'ding',text:'띵- 13과 2분의 1층입니다.\n\n문이 딱 절반만 열린다. 복도 천장도 정확히 절반 높이다. 무릎으로 기어 나갔다.\n\n복도 끝에 정장 입은 남자가 서 있다. 목 위로는 커다란 붕어다. 아가미가 뻐끔거린다.\n\n"실례지만… 얼굴 좀 빌릴 수 있을까요? 내일 면접이라서요."',
+  choices:()=>[{t:'얼굴을 빌려준다',go:'E_face'},...(S.bungeo?[{t:'붕어빵을 건넨다',go:'bungeo'}]:[]),{t:'반대쪽으로 기어서 도망친다',go:'hall',san:-10}]},
+ bungeo:{floor:'13½',art:'fish',text:'붕어빵 봉지를 내밀었다.\n\n남자가 봉지 안을 오래, 아주 오래 들여다본다.\n동그란 눈에서 물이 뚝뚝 떨어진다.\n\n"…형?"\n\n"형, 여기 있었어? 30년 동안 찾았잖아…"\n\n그는 붕어빵을 가슴에 꼭 끌어안는다. 팥이 셔츠에 묻는다. 아무도 그걸 지적하지 않는다.',
+  choices:[{t:'"…형님이 맞으신 것 같네요."',go:'E_brother'},{t:'"아니 그거 그냥 붕어빵인데요"',go:'bungeoNo',san:-15}]},
+ bungeoNo:{floor:'13½',art:'fish',sfx:'thud',eff:()=>{S.bungeo=false},text:'남자의 아가미가 멈춘다.\n\n"…그냥 붕어빵?"\n\n그가 천천히 고개를… 아니, 몸 전체를 돌린다. 붕어 머리의 뒤통수에 얼굴이 하나 더 있다. 그쪽은 웃고 있다.\n\n기어서 도망쳤다. 붕어빵은 두고 왔다.',choices:[{t:'계속 긴다',go:'hall'}]},
+ hall:{floor:'13½',art:'doors3',text:'복도를 기어간다. 양옆에 문이 세 개.\n문패가 붙어 있다.\n\n· 초등학교 3학년 때 잃어버린 지우개\n· 당신이 안 받은 전화\n· 출구 (아마도)',choices:[{t:'지우개 방',go:'eraser'},{t:'전화 방',go:'phones'},{t:'출구 (아마도)',go:'exit'}]},
+ eraser:{floor:'13½',art:'erasers',sfx:'thud',san:-15,text:'방 안에 지우개가 수천 개 쌓여 있다.\n\n문이 열리자 지우개들이 일제히 이쪽으로 돌아선다. 지우개에도 앞뒤가 있다는 걸 처음 알았다.\n\n맨 앞의 닳은 지우개 하나가 말한다.\n\n"우리를… 왜… 버렸어…"\n\n볼펜으로 내 이름이 적혀 있다. 3학년 2반.',choices:[{t:'"미안해. 진짜 몰랐어."',go:'E_stairs'},{t:'못 본 척 문을 닫는다',go:'E_nameless'}]},
+ phones:{floor:'13½',art:'phones',sfx:'ring',text:'방 안에서 전화기 수백 대가 동시에 울리고 있다.\n\n엄마. 치과. 모르는 번호. 모르는 번호. 대출 상담. 엄마. 엄마. 모르는 번호.',choices:[{t:'하나를 받는다',go:'phoneAnswer'},{t:'전부 끊는다',go:'exit',san:-25}]},
+ phoneAnswer:{floor:'13½',art:'phones',text:'"여보세요?"\n\n「…아, 받았다. 안녕. 나 어제의 너야.」\n\n「그 엘리베이터 타지 마. 13½ 누르지 마. 붕어한테 말 걸지 마. 그리고 냉장고 우유 상했어.」\n\n「아 그리고 계단은—」\n\n뚝.',choices:[{t:'정신을 차린다',go:'loop'}]},
+ loop:{floor:'12',art:'black',door:'closed',eff:()=>{S.loop++;S.bungeo=true},text:'…\n\n눈을 떴다. 엘리베이터 안이다.\n\n시계: 밤 11시 47분.',choices:[{t:'?',go:'start'}]},
+ exit:{floor:'??',art:'inside',sfx:'ding',text:'"출구(아마도)" 문을 열었다.\n\n엘리베이터다.\n\n「어서 오세요. 다시.」',choices:[{t:'…',go:'voice'}]},
+};
+const ENDS=[
+ ['E_elevator','오르락내리락','당신은 이제 엘리베이터다.\n\n5분이 지났다. 39년 된 그 목소리는 돌아오지 않았다.\n\n생각보다 나쁘지 않다. 사람들 통화를 엿듣는 건 재밌다. 3층 박 대리는 바람을 피우고 있다.\n\n가끔 누가 당신 안에서 방귀를 뀐다. 그건 나쁘다.'],
+ ['E_swap','교대 근무','저쪽의 나와 자리를 바꿨다.\n\n다음 날 아침, \'나\'는 정시에 출근했다. 아무도 눈치채지 못했다.\n팀장님은 오히려 "요즘 일 잘하네?"라고 했다.\n\n당신은 1층과 1층 사이 어딘가에서 다음 교대를 기다린다.'],
+ ['E_face','면접 합격','얼굴을 빌려줬다. 생각보다 깔끔하게 떨어졌다. 뽁.\n\n그는 면접에 합격했다. 연봉도 괜찮다고 한다.\n\n당신은 붕어 머리로 13½층에서 산다.\n아가미 호흡은 의외로 편하다. 다만 붕어빵 가게 앞을 지나가기가 좀 힘들다.'],
+ ['E_nameless','이름 없음','문을 닫았다.\n\n뒤에서 아주 작게 쓱, 쓱, 소리가 들린다.\n\n집에 돌아와 보니 문패의 이름이 지워져 있었다.\n사원증의 이름도. 휴대폰 연락처의 \'나\'도.\n\n엄마가 전화해서 묻는다. "…누구세요?"'],
+ ['E_stairs','계단','"미안해."\n\n지우개들이 조용해진다. 그리고 다 함께 몸을 굴려 복도 벽을 지우기 시작한다.\n지워진 자리에 계단이 있다.\n\n한참을 걸어 내려가 1층 로비에 도착했다. 진짜 로비다.\n경비 아저씨가 고개를 든다.\n\n"늦게까지 계셨네요. …근데 계단으로 오셨어요?\n이 건물 엘리베이터 없는데."'],
+ ['E_brother','붕어 형제','붕어 남자는 형을 품에 안고 한참 울었다.\n\n그리고 "직원 전용" 엘리베이터로 안내해 줬다. 그 엘리베이터는 정상이었다. 정상이라는 게 이렇게 감동적일 줄 몰랐다.\n\n다음 날 아침, 현관 앞에 과일바구니가 놓여 있었다.\n과일 대신 생물 고등어 여섯 마리가 들어 있었다.\n\n카드: "형을 찾아주셔서 감사합니다. 형은 맛있게 먹었습니다."'],
+ ['E_insane','엘리베이터 음악','정신력이 바닥났다.\n\n스피커에서 보사노바가 흘러나온다.\n당신은 그 멜로디를 따라 흥얼거리기 시작했다.\n\n띵- 띵- 띠리리-\n\n멈출 수가 없다. 멈추고 싶지도 않다. 문은 다시 열리지 않았지만 괜찮다. 음악이 좋다.'],
+];
+
+/* ---------- 소리 ---------- */
+let AC,master,muted=false;
+function audio(){if(AC)return;try{AC=new(window.AudioContext||window.webkitAudioContext)();master=AC.createGain();master.gain.value=.6;master.connect(AC.destination);
+ const f=AC.createBiquadFilter();f.type='lowpass';f.frequency.value=160;const g=AC.createGain();g.gain.value=.06;f.connect(g);g.connect(master);
+ [55,55.6].forEach((hz,i)=>{const o=AC.createOscillator();o.type=i?'sine':'sawtooth';o.frequency.value=hz;o.connect(f);o.start()});}catch(e){AC=null}}
+function tone(hz,d,type='sine',v=.2,w=0){if(!AC)return;const t=AC.currentTime+w,o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.value=hz;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(master);o.start(t);o.stop(t+d)}
+const sfx={ding(){tone(1318,1.2,'sine',.14);tone(1046,1.5,'sine',.14,.28)},thud(){tone(62,.6,'square',.2);tone(41,.9,'sine',.3)},
+ click(){tone(820,.05,'square',.04)},key(){tone(260+Math.random()*90,.025,'square',.012)},
+ ring(){for(let i=0;i<8;i++){tone(1400,.07,'square',.04,i*.12);tone(1720,.07,'square',.04,i*.12+.06)}},
+ end(){tone(220,2.2,'triangle',.1);tone(233,2.2,'triangle',.1);tone(110,2.6,'sine',.12)}};
+$('mute').onclick=()=>{audio();muted=!muted;if(master)master.gain.value=muted?0:.6;$('mute').textContent=muted?'무음':'소리'};
+
+/* ---------- 엔진 ---------- */
+const val=v=>typeof v==='function'?v():v;
+let typer=null,busy=false,ending=false;
+function got(){try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){return[]}}
+function save(id){try{const a=got();if(!a.includes(id)){a.push(id);localStorage.setItem(KEY,JSON.stringify(a))}}catch(e){}}
+function setFloor(f){const el=$('floor');el.textContent=f;el.classList.remove('flick');void el.offsetWidth;el.classList.add('flick')}
+function shake(){const a=$('app');a.classList.remove('shake');void a.offsetWidth;a.classList.add('shake')}
+function hurt(n){if(!n)return;S.san=Math.max(0,S.san+n);$('sanN').textContent=S.san;$('sanBar').style.width=S.san+'%';
+ $('text').classList.toggle('wob',S.san<50);if(n<0){shake();if(AC)tone(90,.3,'sawtooth',.08)}}
+function doors(mode,art,cb){const sh=$('shaft');sh.classList.remove('open','half');
+ setTimeout(()=>{if(art)$('scene').innerHTML=ART[art];if(mode!=='closed')sh.classList.add(mode==='half'?'half':'open');cb&&cb()},sh.dataset.d==='1'?500:0);sh.dataset.d='1'}
+function type(str,cb){clearInterval(typer);const el=$('text');el.textContent='';let i=0;
+ const finish=()=>{clearInterval(typer);el.textContent=str;el.onclick=null;cb()};
+ el.onclick=finish;typer=setInterval(()=>{i++;el.textContent=str.slice(0,i);if(i%3==0&&str[i]!==' ')sfx.key();if(i>=str.length)finish()},24)}
+function choices(list){const b=$('choices');b.innerHTML='';list.forEach((c,i)=>{const x=document.createElement('button');x.className='c';x.textContent=c.t;x.style.animationDelay=i*90+'ms';
+ x.onclick=()=>{if(busy)return;busy=true;sfx.click();hurt(c.san||0);setTimeout(()=>{busy=false;go(S.san<=0?'E_insane':c.go)},c.san?350:120)};b.appendChild(x)})}
+function go(id){
+ $('choices').innerHTML='';
+ if(id.startsWith('E_'))return end(id);
+ const s=sc[id];
+ if(s.game==='eye')return eye();
+ if(s.game==='mash')return mash();
+ if(s.eff)s.eff();
+ if(s.san)hurt(s.san);
+ if(S.san<=0)return end('E_insane');
+ setFloor(s.floor);
+ doors(s.door||'open',s.art,()=>{if(s.sfx)sfx[s.sfx]();type(val(s.text),()=>choices(val(s.choices)))});
+}
+function eye(){
+ const d=$('dark');d.classList.add('on');d.innerHTML=`<div class="hint">얼굴이 보이면 바로 눌러요</div><div id="face">${FACE}</div><button class="c big" id="shut" style="opacity:1;width:min(80vw,320px)">눈 감기</button>`;
+ let shown=false,done=false,t2;
+ const t1=setTimeout(()=>{shown=true;$('face').classList.add('show');sfx.thud();t2=setTimeout(()=>fin(false),1000)},1300+Math.random()*2400);
+ $('shut').onclick=()=>{if(!done)fin(shown)};
+ function fin(ok){done=true;clearTimeout(t1);clearTimeout(t2);
+  if(!ok){$('face').classList.add('show','stare');hurt(-30)}
+  setTimeout(()=>{d.classList.remove('on');d.innerHTML='';go(S.san<=0?'E_insane':ok?'eyeOk':'eyeFail')},ok?300:1100)}
+}
+function mash(){
+ setFloor('1');doors('half','inside');
+ $('text').textContent='저쪽의 내가 한 발 들어온다.\n\n닫힘 버튼을 연타하세요. 4초 안에 15번.';
+ const b=$('choices');b.innerHTML=`<div class="meter t"><i id="tm"></i></div><button class="c big" id="cl" style="opacity:1">▶ ◀  닫힘</button><div class="meter"><i id="pm"></i></div>`;
+ let n=0,start=0,done=false,iv;
+ $('cl').onclick=()=>{if(done)return;if(!start){start=Date.now();iv=setInterval(tick,50)}n++;tone(600+n*30,.05,'square',.05);$('pm').style.width=Math.min(100,n/15*100)+'%';
+  if(n>=15){done=true;clearInterval(iv);sfx.thud();go('mashOk')}};
+ function tick(){const r=1-(Date.now()-start)/4000;$('tm').style.width=Math.max(0,r*100)+'%';if(r<=0&&!done){done=true;clearInterval(iv);go('E_swap')}}
+}
+function end(id){
+ const e=ENDS.find(x=>x[0]===id);save(id);ending=true;setFloor('—');sfx.end();
+ doors('closed',null);
+ const t=$('title');t.style.display='block';t.textContent=`엔딩 · ${e[1]}`;
+ type(e[2],()=>{const g=got();const b=$('choices');
+  b.innerHTML=`<small>모은 엔딩 ${g.length} / ${ENDS.length}</small><div class="endlist">${ENDS.map(x=>`<div class="${g.includes(x[0])?'got':''}">${g.includes(x[0])?x[1]:'???'}</div>`).join('')}</div>`;
+  const r=document.createElement('button');r.className='c';r.textContent='다시 탑승한다';r.onclick=()=>{sfx.click();restart()};b.appendChild(r)});
+}
+function restart(){reset();ending=false;$('title').style.display='none';hurt(0);$('sanN').textContent=100;$('sanBar').style.width='100%';$('text').classList.remove('wob');go('start')}
+
+/* 가끔 표시등이 이상한 걸 보여준다 */
+const WEIRD=['뒤','ㅎㅎ','너','4','-1','99','안녕','↓↓↓','?'];
+(function loopFlick(){setTimeout(()=>{const f=$('floor');if(!ending&&!$('dark').classList.contains('on')&&$('shaft').dataset.d){const old=f.textContent;f.textContent=WEIRD[Math.random()*WEIRD.length|0];setTimeout(()=>f.textContent=old,140)}loopFlick()},3500+Math.random()*5000)})();
+
+/* 표지 */
+$('scene').innerHTML=ART.inside;
+$('text').innerHTML='';
+$('choices').innerHTML='';
+const cover=document.createElement('div');cover.className='cover';
+cover.innerHTML=`<h1>13½층</h1><p>퇴근길 엘리베이터 공포(?) 게임</p><small>엔딩 7개 · 소리 켜고 하면 더 좋음</small>`;
+$('app').insertBefore(cover,$('title'));
+const st=document.createElement('button');st.className='c big';st.textContent='탑승하기';st.style.opacity=1;
+st.onclick=()=>{audio();sfx.ding();cover.remove();go('start')};
+$('choices').appendChild(st);
+const g0=got();if(g0.length){const s=document.createElement('small');s.style.textAlign='center';s.textContent=`지금까지 모은 엔딩 ${g0.length} / ${ENDS.length}`;$('choices').appendChild(s)}
+}
+</script>
+</body>
+</html>
